@@ -1,0 +1,39 @@
+[phantomcore]
+version = "1.0.0"
+language = "ka"
+verbose = false
+output_dir = "./reports"
+max_workers = 4
+
+[spectra]
+default_timeout = 60
+max_packets = 100000
+anomaly_threshold = 3.0
+community_resolution = 1.0
+
+[cipher]
+max_file_size = 104857600  # 100MB
+default_block_size = 256
+entropy_threshold = 7.5
+
+[morph]
+max_binary_size = 536870912  # 512MB
+string_min_length = 4
+entropy_packed_threshold = 7.0
+
+[nexus]
+db_path = "./nexus/data/cve.db"
+cache_ttl = 86400
+api_timeout = 30
+max_results = 100
+
+[pulse]
+channel_hop_interval = 0.5
+deauth_threshold = 10
+signal_min_dbm = -90
+capture_timeout = 300
+
+[logging]
+level = "INFO"
+file = "./phantomcore.log"
+format = "structured"

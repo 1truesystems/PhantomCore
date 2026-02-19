@@ -1,0 +1,16 @@
+# PhantomCore Dependencies - ARM64 Compatible
+httpx[http2]>=0.27
+pydantic>=2.9
+rich>=13.9
+click>=8.1
+jinja2>=3.1
+toml>=0.10
+numpy>=1.26
+scipy>=1.12
+scapy>=2.5
+networkx>=3.4
+pycryptodome>=3.20
+capstone>=5.0
+aiodns>=3.2
+pytest>=8.3
+pytest-asyncio>=0.24

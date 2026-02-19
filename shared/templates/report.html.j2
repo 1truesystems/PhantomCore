@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhantomCore - {{ tool_name }} | Report</title>
+    <style>
+        /* ================================================================
+           PhantomCore Report Template -- Dark Professional Theme
+           ================================================================
+
+           Designed for the PhantomCore cybersecurity educational toolkit.
+           Supports bilingual Georgian + English labels throughout.
+
+           Reference:
+               OWASP Risk Rating Methodology -- severity colour coding.
+               WCAG 2.1 AA contrast guidelines for accessibility.
+           ================================================================ */
+
+        :root {
+            --bg-primary:       #0d1117;
+            --bg-secondary:     #161b22;
+            --bg-card:          #1c2128;
+            --bg-table-header:  #21262d;
+            --bg-table-row-alt: #161b22;
+            --text-primary:     #e6edf3;
+            --text-secondary:   #8b949e;
+            --text-muted:       #6e7681;
+            --border-color:     #30363d;
+            --accent-cyan:      #58a6ff;
+            --accent-magenta:   #bc8cff;
+
+            /* Severity palette (OWASP-aligned) */
+            --severity-critical-bg:   #6e0b14;
+            --severity-critical-text:  #ff6b6b;
+            --severity-critical-border:#d32f2f;
+            --severity-high-bg:       #5c2000;
+            --severity-high-text:     #ff9800;
+            --severity-high-border:   #e65100;
+            --severity-medium-bg:     #4a3800;
+            --severity-medium-text:   #ffeb3b;
+            --severity-medium-border: #f9a825;
+            --severity-low-bg:        #0a3069;
+            --severity-low-text:      #58a6ff;
+            --severity-low-border:    #1976d2;
+            --severity-info-bg:       #1a2332;
+            --severity-info-text:     #8b949e;
+            --severity-info-border:   #484f58;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans Georgian',
+                         Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 0;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        /* ====================== Header ====================== */
+
+        .report-header {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-card) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem 2.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .report-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-magenta));
+        }
+
+        .report-header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            margin-bottom: 0.25rem;
+        }
+
+        .report-header .subtitle {
+            font-size: 1.1rem;
+            color: var(--accent-magenta);
+            margin-bottom: 1rem;
+        }
+
+        .header-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .header-meta .meta-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .meta-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        .meta-label-ka {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
+
+        .meta-value {
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* ================== Summary Statistics ================== */
+
+        .summary-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--accent-magenta);
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 1rem;
+        }
+
+        .section-title-ka {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.25rem;
+            text-align: center;
+            transition: border-color 0.2s ease;
+        }
+
+        .stat-card:hover {
+            border-color: var(--accent-cyan);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .stat-label-ka {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .stat-card.critical .stat-number { color: var(--severity-critical-text); }
+        .stat-card.high     .stat-number { color: var(--severity-high-text); }
+        .stat-card.medium   .stat-number { color: var(--severity-medium-text); }
+        .stat-card.low      .stat-number { color: var(--severity-low-text); }
+        .stat-card.info     .stat-number { color: var(--severity-info-text); }
+        .stat-card.total    .stat-number { color: var(--accent-cyan); }
+
+        .summary-text {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* ================== Risk Assessment ================== */
+
+        .risk-section {
+            margin-bottom: 2rem;
+        }
+
+        .risk-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .risk-score-display {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .risk-score-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            border: 3px solid;
+            flex-shrink: 0;
+        }
+
+        .risk-score-circle.critical {
+            color: var(--severity-critical-text);
+            border-color: var(--severity-critical-border);
+            background: var(--severity-critical-bg);
+        }
+        .risk-score-circle.high {
+            color: var(--severity-high-text);
+            border-color: var(--severity-high-border);
+            background: var(--severity-high-bg);
+        }
+        .risk-score-circle.medium {
+            color: var(--severity-medium-text);
+            border-color: var(--severity-medium-border);
+            background: var(--severity-medium-bg);
+        }
+        .risk-score-circle.low {
+            color: var(--severity-low-text);
+            border-color: var(--severity-low-border);
+            background: var(--severity-low-bg);
+        }
+        .risk-score-circle.negligible {
+            color: var(--severity-info-text);
+            border-color: var(--severity-info-border);
+            background: var(--severity-info-bg);
+        }
+
+        .risk-level-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .risk-factors {
+            list-style: none;
+            padding: 0;
+        }
+
+        .risk-factors li {
+            padding: 0.35rem 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .risk-factors li::before {
+            content: '\25B8';
+            color: var(--accent-cyan);
+            margin-right: 0.5rem;
+        }
+
+        /* ================== Findings Table ================== */
+
+        .findings-section {
+            margin-bottom: 2rem;
+        }
+
+        .findings-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-card);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .findings-table thead th {
+            background: var(--bg-table-header);
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-secondary);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .findings-table tbody tr {
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.15s ease;
+        }
+
+        .findings-table tbody tr:nth-child(even) {
+            background: var(--bg-table-row-alt);
+        }
+
+        .findings-table tbody tr:hover {
+            background: rgba(88, 166, 255, 0.05);
+        }
+
+        .findings-table tbody td {
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+            vertical-align: top;
+        }
+
+        .findings-table .col-num {
+            width: 3rem;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .findings-table .col-severity {
+            width: 7rem;
+        }
+
+        .findings-table .col-title {
+            width: 22%;
+            font-weight: 500;
+        }
+
+        .findings-table .col-description {
+            width: auto;
+        }
+
+        /* Severity badges */
+        .severity-badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            border: 1px solid;
+        }
+
+        .severity-badge.critical {
+            color: var(--severity-critical-text);
+            background: var(--severity-critical-bg);
+            border-color: var(--severity-critical-border);
+        }
+        .severity-badge.high {
+            color: var(--severity-high-text);
+            background: var(--severity-high-bg);
+            border-color: var(--severity-high-border);
+        }
+        .severity-badge.medium {
+            color: var(--severity-medium-text);
+            background: var(--severity-medium-bg);
+            border-color: var(--severity-medium-border);
+        }
+        .severity-badge.low {
+            color: var(--severity-low-text);
+            background: var(--severity-low-bg);
+            border-color: var(--severity-low-border);
+        }
+        .severity-badge.info {
+            color: var(--severity-info-text);
+            background: var(--severity-info-bg);
+            border-color: var(--severity-info-border);
+        }
+
+        /* ================== Finding Details ================== */
+
+        .finding-detail {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--border-color);
+        }
+
+        .finding-detail.severity-critical { border-left-color: var(--severity-critical-border); }
+        .finding-detail.severity-high     { border-left-color: var(--severity-high-border); }
+        .finding-detail.severity-medium   { border-left-color: var(--severity-medium-border); }
+        .finding-detail.severity-low      { border-left-color: var(--severity-low-border); }
+        .finding-detail.severity-info     { border-left-color: var(--severity-info-border); }
+
+        .finding-detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .finding-detail-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .finding-detail p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .finding-detail .label {
+            font-weight: 600;
+            color: var(--accent-cyan);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .finding-detail .label-ka {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .evidence-block {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 0.75rem;
+            font-family: 'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            margin-top: 0.25rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .references-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 0.25rem;
+        }
+
+        .references-list li {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            padding: 0.15rem 0;
+        }
+
+        .references-list li::before {
+            content: '[' attr(data-idx) ']';
+            color: var(--accent-cyan);
+            margin-right: 0.4rem;
+            font-size: 0.75rem;
+        }
+
+        /* ================== Footer ================== */
+
+        .report-footer {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .report-footer .brand {
+            color: var(--accent-cyan);
+            font-weight: 600;
+        }
+
+        /* ================== Utilities ================== */
+
+        .no-findings {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        @media print {
+            body { background: #fff; color: #1a1a2e; }
+            .report-header::before { background: #333; }
+            .stat-card, .risk-card, .finding-detail, .findings-table {
+                border-color: #ccc;
+                background: #f5f5f5;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <!-- ======================= HEADER ======================= -->
+        <div class="report-header">
+            <h1>PhantomCore :: {{ tool_name }}</h1>
+            <div class="subtitle">
+                Cybersecurity Educational Toolkit
+            </div>
+            <div class="header-meta">
+                <div class="meta-item">
+                    <span class="meta-label">Target</span>
+                    <span class="meta-value">{{ target }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Start Time</span>
+                    <span class="meta-value">{{ start_time }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">End Time</span>
+                    <span class="meta-value">{{ end_time or '---' }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Duration</span>
+                    <span class="meta-value">
+                        {% if duration_seconds is not none %}
+                            {{ "%.2f"|format(duration_seconds) }} sec
+                        {% else %}
+                            ---
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SUMMARY STATISTICS ================= -->
+        <div class="summary-section">
+            <h2 class="section-title">
+                Summary Statistics
+                <span class="section-title-ka">/ Summary Statistics</span>
+            </h2>
+
+            <div class="stats-grid">
+                <div class="stat-card total">
+                    <div class="stat-number">{{ severity_counts.values()|sum }}</div>
+                    <div class="stat-label">Total Findings</div>
+                    <div class="stat-label-ka">Total Findings</div>
+                </div>
+                <div class="stat-card critical">
+                    <div class="stat-number">{{ severity_counts.get('CRITICAL', 0) }}</div>
+                    <div class="stat-label">Critical</div>
+                    <div class="stat-label-ka">Critical</div>
+                </div>
+                <div class="stat-card high">
+                    <div class="stat-number">{{ severity_counts.get('HIGH', 0) }}</div>
+                    <div class="stat-label">High</div>
+                    <div class="stat-label-ka">High</div>
+                </div>
+                <div class="stat-card medium">
+                    <div class="stat-number">{{ severity_counts.get('MEDIUM', 0) }}</div>
+                    <div class="stat-label">Medium</div>
+                    <div class="stat-label-ka">Medium</div>
+                </div>
+                <div class="stat-card low">
+                    <div class="stat-number">{{ severity_counts.get('LOW', 0) }}</div>
+                    <div class="stat-label">Low</div>
+                    <div class="stat-label-ka">Low</div>
+                </div>
+                <div class="stat-card info">
+                    <div class="stat-number">{{ severity_counts.get('INFO', 0) }}</div>
+                    <div class="stat-label">Informational</div>
+                    <div class="stat-label-ka">Informational</div>
+                </div>
+            </div>
+
+            {% if summary %}
+            <div class="summary-text">
+                {{ summary }}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- ================= RISK ASSESSMENT =================== -->
+        {% if risk %}
+        <div class="risk-section">
+            <h2 class="section-title">
+                Risk Assessment
+                <span class="section-title-ka">/ Risk Assessment</span>
+            </h2>
+
+            <div class="risk-card">
+                <div class="risk-score-display">
+                    <div class="risk-score-circle {{ risk.level|lower }}">
+                        {{ "%.0f"|format(risk.score) }}
+                    </div>
+                    <div>
+                        <div class="risk-level-text" style="color: var(--severity-{{ risk.level|lower }}-text, var(--text-primary));">
+                            {{ risk.level }}
+                            {% if risk.level == 'CRITICAL' %}<span class="meta-label-ka"> / Critical</span>
+                            {% elif risk.level == 'HIGH' %}<span class="meta-label-ka"> / High</span>
+                            {% elif risk.level == 'MEDIUM' %}<span class="meta-label-ka"> / Medium</span>
+                            {% elif risk.level == 'LOW' %}<span class="meta-label-ka"> / Low</span>
+                            {% elif risk.level == 'NEGLIGIBLE' %}<span class="meta-label-ka"> / Negligible</span>
+                            {% endif %}
+                        </div>
+                        <div style="color: var(--text-secondary); font-size: 0.85rem;">
+                            Risk Score: {{ "%.1f"|format(risk.score) }} / 100
+                        </div>
+                    </div>
+                </div>
+
+                {% if risk.factors %}
+                <div style="margin-top: 0.75rem;">
+                    <span class="label">Contributing Factors</span>
+                    <ul class="risk-factors">
+                        {% for factor in risk.factors %}
+                        <li>{{ factor }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- ================= FINDINGS TABLE ==================== -->
+        <div class="findings-section">
+            <h2 class="section-title">
+                Findings
+                <span class="section-title-ka">/ Findings</span>
+            </h2>
+
+            {% if findings %}
+            <table class="findings-table">
+                <thead>
+                    <tr>
+                        <th class="col-num">#</th>
+                        <th class="col-severity">
+                            Severity
+                            <br><span class="meta-label-ka">Severity</span>
+                        </th>
+                        <th class="col-title">
+                            Title
+                            <br><span class="meta-label-ka">Title</span>
+                        </th>
+                        <th class="col-description">
+                            Description
+                            <br><span class="meta-label-ka">Description</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for finding in findings %}
+                    <tr>
+                        <td class="col-num">{{ loop.index }}</td>
+                        <td class="col-severity">
+                            <span class="severity-badge {{ finding.severity|lower }}">
+                                {{ finding.severity }}
+                            </span>
+                        </td>
+                        <td class="col-title">{{ finding.title }}</td>
+                        <td class="col-description">{{ finding.description|truncate(200) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- =============== FINDING DETAILS ================== -->
+            <div style="margin-top: 2rem;">
+                <h2 class="section-title">
+                    Detailed Findings
+                    <span class="section-title-ka">/ Detailed Findings</span>
+                </h2>
+
+                {% for finding in findings %}
+                <div class="finding-detail severity-{{ finding.severity|lower }}">
+                    <div class="finding-detail-header">
+                        <span class="finding-detail-title">
+                            {{ loop.index }}. {{ finding.title }}
+                        </span>
+                        <span class="severity-badge {{ finding.severity|lower }}">
+                            {{ finding.severity }}
+                        </span>
+                    </div>
+
+                    <p><span class="label">Description:</span></p>
+                    <p>{{ finding.description }}</p>
+
+                    {% if finding.evidence %}
+                    <p style="margin-top: 0.75rem;">
+                        <span class="label">Evidence:</span>
+                    </p>
+                    <div class="evidence-block">{{ finding.evidence }}</div>
+                    {% endif %}
+
+                    {% if finding.recommendation %}
+                    <p><span class="label">Recommendation:</span></p>
+                    <p>{{ finding.recommendation }}</p>
+                    {% endif %}
+
+                    {% if finding.references %}
+                    <p style="margin-top: 0.75rem;">
+                        <span class="label">References:</span>
+                    </p>
+                    <ul class="references-list">
+                        {% for ref in finding.references %}
+                        <li data-idx="{{ loop.index }}">{{ ref }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            {% else %}
+            <div class="no-findings">
+                No findings detected.
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- ======================= FOOTER ======================= -->
+        <div class="report-footer">
+            <p>
+                Report generated by
+                <span class="brand">PhantomCore</span> ::
+                {{ tool_name }}
+            </p>
+            <p>
+                Cybersecurity Educational Toolkit
+            </p>
+            <p style="margin-top: 0.5rem;">
+                {{ generated_at }}
+            </p>
+        </div>
+
+    </div>
+</body>
+</html>
