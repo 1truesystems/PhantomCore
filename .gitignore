@@ -31,6 +31,9 @@ nexus/data/*.db
 *.db
 *.log
 
+# Role/persona
+PHANTOM_ROLE.md
+
 # Secrets
 .env
 *.key
